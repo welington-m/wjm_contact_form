@@ -1,0 +1,33 @@
+{
+  "name": "wjm/contact-form",
+  "description": "Plugin de formulário de contato para WordPress seguindo Clean Architecture.",
+  "type": "project",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Welington Jose Miyazato",
+      "email": "seuemail@exemplo.com",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": "^7.4 || ^8.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "UseCases\\": "UseCases/",
+      "Entities\\": "Entities/",
+      "ValueObjects\\": "ValueObjects/",
+      "Services\\": "Services/",
+      "Repositories\\": "Repositories/"
+    }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^10.0"
+  },
+  "scripts": {
+    "test": "phpunit"
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}
