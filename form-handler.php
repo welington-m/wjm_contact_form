@@ -1,13 +1,14 @@
 <?php
+$options_raw = get_option('wjm_contact_select_options', "Alistamento\nContato");
+$options_array = array_filter(array_map('trim', explode("\n", $options_raw)));
+$select_options = array_combine($options_array, $options_array); // label = value
+
 $options = [
     'name_label' => get_option('wjm_contact_label_name', 'Seu nome'),
     'email_label' => get_option('wjm_contact_label_email', 'Seu email'),
     'message_label' => get_option('wjm_contact_label_message', 'Mensagem'),
     'topic_label' => get_option('wjm_contact_label_topic', 'Assunto'),
-    'select_options' => [
-        'alistamento' => 'Alistamento',
-        'contato' => 'Contato'
-    ],
+    'select_options' => $select_options,
     'required_message' => get_option('wjm_contact_required_message', 'Campo obrigatório'),
 ];
 
@@ -19,6 +20,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['wjm_contact_nonce_fie
         if (empty(trim($_POST[$field] ?? ''))) {
             $errors[$field] = $options['required_message'];
         }
+    }
+
+    if (!in_array($_POST['topic'], array_keys($select_options))) {
+        $errors['topic'] = 'Valor inválido selecionado';
     }
 
     if (empty($errors)) {
