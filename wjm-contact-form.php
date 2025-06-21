@@ -6,167 +6,136 @@ Version: 1.1
 Author: Welington Miyazato
 */
 
-if (file_exists(__DIR__ . '/vendor/autoload.php')) {
-    require_once __DIR__ . '/vendor/autoload.php';
-}
+require_once plugin_dir_path(__FILE__) . 'shortcode-handler.php';
 
-
-add_shortcode('wjm_contact_form', function() {
-    ob_start();
-    include plugin_dir_path(__FILE__) . 'form-handler.php';
-    return ob_get_clean();
-});
-
-add_action('admin_menu', function() {
-    add_options_page(
-        'Configurações do Formulário',
-        'Formulário WJM',
-        'manage_options',
-        'wjm-contact-form',
-        'wjm_contact_form_settings_page'
-    );
-
-    add_menu_page(
-        'Mensagens Recebidas',
-        'Mensagens WJM',
-        'manage_options',
-        'wjm-contact-messages',
-        'wjm_contact_messages_page',
-        'dashicons-email-alt2'
-    );
-});
-
-add_action('admin_init', function() {
-    register_setting('wjm_contact_form_settings', 'wjm_contact_email');
-    register_setting('wjm_contact_form_settings', 'wjm_contact_select_options');
-
-    add_settings_section(
-        'wjm_contact_main_section',
-        'Configurações Gerais',
-        null,
-        'wjm-contact-form'
-    );
-
-    add_settings_field(
-        'wjm_contact_email',
-        'Email de destino',
-        function() {
-            $value = esc_attr(get_option('wjm_contact_email', get_option('admin_email')));
-            echo "<input type='email' name='wjm_contact_email' value='$value' size='40'>";
-        },
-        'wjm-contact-form',
-        'wjm_contact_main_section'
-    );
-
-    add_settings_section('wjm_contact_select_section', 'Opções do campo "Assunto"', null, 'wjm-contact-form');
-
-    add_settings_field('wjm_contact_select_options', 'Valores do campo select (1 por linha)', function () {
-        $value = get_option('wjm_contact_select_options', "Alistamento\nContato");
-        echo "<textarea name='wjm_contact_select_options' rows='5' cols='50'>" . esc_textarea($value) . "</textarea>";
-    }, 'wjm-contact-form', 'wjm_contact_select_section');
-});
-
-function wjm_contact_form_settings_page() {
-    echo '<div class="wrap">';
-    echo '<h1>Configurações do Formulário de Contato</h1>';
-    echo '<form method="post" action="options.php">';
-    settings_fields('wjm_contact_form_settings');
-    do_settings_sections('wjm-contact-form');
-    submit_button();
-    echo '</form>';
-    echo '</div>';
-}
-
-function wjm_contact_messages_page() {
-    if (!current_user_can('manage_options')) {
-        wp_die(__('Você não tem permissão para acessar esta página.'));
-    }
-
+register_activation_hook(__FILE__, 'wjm_create_forms_table');
+function wjm_create_forms_table() {
     global $wpdb;
-    $table = $wpdb->prefix . 'wjm_contact_form';
+    $table_name = $wpdb->prefix . 'wjm_forms';
+    $charset_collate = $wpdb->get_charset_collate();
 
-    $search_email = isset($_GET['email']) ? sanitize_email($_GET['email']) : '';
-    $search_date = isset($_GET['date']) ? sanitize_text_field($_GET['date']) : '';
-    $paged = isset($_GET['paged']) ? max(1, intval($_GET['paged'])) : 1;
-    $per_page = 10;
-    $offset = ($paged - 1) * $per_page;
-    $search_sql = [];
+    $sql = "CREATE TABLE $table_name (
+        id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        slug VARCHAR(255) UNIQUE,
+        config JSON NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    ) $charset_collate;";
 
-    if ($search_email) {
-        $search_sql[] = $wpdb->prepare("email LIKE %s", "%$search_email%");
-    }
-    if ($search_date) {
-        $search_sql[] = $wpdb->prepare("DATE(created_at) = %s", $search_date);
-    }
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    dbDelta($sql);
+}
 
-    $where_clause = $search_sql ? 'WHERE ' . implode(' AND ', $search_sql) : '';
+add_action('admin_enqueue_scripts', function() {
+    wp_enqueue_style('wjm-contact-admin-style', plugin_dir_url(__FILE__) . 'assets/admin.css');
+});
 
-    // Total de resultados
-    $total_items = $wpdb->get_var("SELECT COUNT(*) FROM $table $where_clause");
+add_action('wp_enqueue_scripts', function() {
+    wp_enqueue_style('wjm-contact-public-style', plugin_dir_url(__FILE__) . 'assets/form.css');
+});
 
-    // Obter resultados com limite e offset
-    $results = $wpdb->get_results("SELECT * FROM $table $where_clause ORDER BY created_at DESC LIMIT $per_page OFFSET $offset");
+add_action('admin_menu', 'wjm_add_forms_menu');
+function wjm_add_forms_menu() {
+    add_menu_page(
+        'WJM Formulários',
+        'Formulários WJM',
+        'manage_options',
+        'wjm-forms',
+        'wjm_render_forms_list',
+        'dashicons-feedback',
+        26
+    );
 
-    // Exportar CSV com nonce
-    if (isset($_GET['export']) && $_GET['export'] === 'csv' && isset($_GET['_wpnonce']) && wp_verify_nonce($_GET['_wpnonce'], 'export_wjm_csv')) {
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="mensagens_wjm.csv"');
-        $output = fopen('php://output', 'w');
-        fputcsv($output, ['Data', 'Nome', 'Email', 'Mensagem']);
-        foreach ($results as $row) {
-            fputcsv($output, [$row->created_at, $row->name, $row->email, $row->message]);
-        }
-        fclose($output);
-        exit;
-    }
+    add_submenu_page(
+        'wjm-forms',
+        'Novo Formulário',
+        'Adicionar Novo',
+        'manage_options',
+        'wjm-form-editor',
+        'wjm_render_form_editor'
+    );
+}
 
-    $base_url = admin_url('admin.php?page=wjm-contact-messages');
-    $query_params = [
-        'email' => $search_email,
-        'date' => $search_date,
-    ];
+function wjm_render_forms_list() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'wjm_forms';
+    $forms = $wpdb->get_results("SELECT * FROM $table_name ORDER BY created_at DESC");
 
-    echo '<div class="wrap">';
-    echo '<h1>Mensagens Recebidas</h1>';
+    echo '<div class="wrap wjm-admin-wrapper"><h1>Formulários WJM</h1>';
+    echo '<p><a href="admin.php?page=wjm-form-editor" class="button button-primary">Adicionar Novo</a></p>';
 
-    echo '<form method="GET">';
-    echo '<input type="hidden" name="page" value="wjm-contact-messages">';
-    echo 'Email: <input type="email" name="email" value="' . esc_attr($search_email) . '" /> ';
-    echo 'Data: <input type="date" name="date" value="' . esc_attr($search_date) . '" /> ';
-    echo '<input type="submit" class="button" value="Filtrar" /> ';
-    echo '<a class="button" href="' . esc_url(add_query_arg(array_merge($query_params, [
-        'export' => 'csv',
-        '_wpnonce' => wp_create_nonce('export_wjm_csv')
-    ]), $base_url)) . '">Exportar CSV</a>';
-    echo '</form>';
-
-    if ($results) {
+    if ($forms) {
         echo '<table class="widefat fixed striped">';
-        echo '<thead><tr><th>Data</th><th>Nome</th><th>Email</th><th>Mensagem</th></tr></thead><tbody>';
-        foreach ($results as $row) {
+        echo '<thead><tr><th>ID</th><th>Título</th><th>Shortcode</th><th>Data</th><th>Ações</th></tr></thead><tbody>';
+
+        foreach ($forms as $form) {
+            $shortcode = '[wjm_form id=' . esc_attr($form->id) . ']';
             echo '<tr>';
-            echo '<td>' . esc_html($row->created_at) . '</td>';
-            echo '<td>' . esc_html($row->name) . '</td>';
-            echo '<td>' . esc_html($row->email) . '</td>';
-            echo '<td>' . esc_html($row->message) . '</td>';
+            echo '<td>' . esc_html($form->id) . '</td>';
+            echo '<td>' . esc_html($form->title) . '</td>';
+            echo '<td><code>' . $shortcode . '</code></td>';
+            echo '<td>' . esc_html($form->created_at) . '</td>';
+            echo '<td>';
+            echo '<a href="admin.php?page=wjm-form-editor&id=' . esc_attr($form->id) . '" class="button">Editar</a> ';
+            echo '<form method="post" style="display:inline;" onsubmit="return confirm(\'Tem certeza que deseja excluir este formulário?\')">';
+            echo '<input type="hidden" name="form_id" value="' . esc_attr($form->id) . '">';
+            wp_nonce_field('wjm_delete_form_' . $form->id);
+            echo '<input type="submit" name="wjm_delete_form" class="button" value="Excluir">';
+            echo '</form> ';
+            echo '<button class="button" onclick="navigator.clipboard.writeText(\'' . esc_js($shortcode) . '\')">Copiar</button>';
+            echo '</td>';
             echo '</tr>';
         }
-        echo '</tbody></table>';
 
-        // Paginação
-        $total_pages = ceil($total_items / $per_page);
-        if ($total_pages > 1) {
-            echo '<div class="tablenav"><div class="tablenav-pages">';
-            for ($i = 1; $i <= $total_pages; $i++) {
-                $url = esc_url(add_query_arg(array_merge($query_params, ['paged' => $i]), $base_url));
-                echo ($i == $paged)
-                    ? "<span class='tablenav-page-nav'> $i </span>"
-                    : "<a class='button' href='$url'>$i</a> ";
-            }
-            echo '</div></div>';
-        }
+        echo '</tbody></table>';
     } else {
-        echo '<p>Nenhuma mensagem encontrada.</p>';
+        echo '<p>Nenhum formulário criado ainda.</p>';
     }
     echo '</div>';
+}
+
+function wjm_render_form_editor() {
+    global $wpdb;
+    $is_edit = isset($_GET['id']);
+    $form = null;
+
+    if ($is_edit) {
+        $form = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}wjm_forms WHERE id = %d", $_GET['id']));
+    }
+
+    echo '<div class="wrap wjm-admin-editor"><h1>' . ($is_edit ? 'Editar' : 'Novo') . ' Formulário</h1>';
+    echo '<form method="post" action="">';
+    wp_nonce_field('wjm_save_form', 'wjm_form_nonce');
+
+    echo '<table class="form-table">';
+    echo '<tr><th><label for="wjm_form_title">Título</label></th><td><input type="text" name="wjm_form_title" value="' . esc_attr($form->title ?? '') . '" required></td></tr>';
+    echo '<tr><th><label for="wjm_form_slug">Slug</label></th><td><input type="text" name="wjm_form_slug" value="' . esc_attr($form->slug ?? '') . '"></td></tr>';
+    echo '<tr><th><label for="wjm_form_config">JSON Configuração</label></th><td><textarea name="wjm_form_config" rows="10" cols="70" required>' . esc_textarea($form->config ?? '{"fields":[]}') . '</textarea></td></tr>';
+    echo '</table>';
+
+    if ($is_edit) {
+        echo '<input type="hidden" name="wjm_form_id" value="' . esc_attr($form->id) . '">';
+    }
+
+    submit_button('Salvar Formulário');
+    echo '</form>';
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['wjm_form_nonce']) && wp_verify_nonce($_POST['wjm_form_nonce'], 'wjm_save_form')) {
+        $data = [
+            'title' => sanitize_text_field($_POST['wjm_form_title']),
+            'slug' => sanitize_title($_POST['wjm_form_slug']),
+            'config' => wp_unslash($_POST['wjm_form_config'])
+        ];
+
+        if (isset($_POST['wjm_form_id'])) {
+            $wpdb->update($wpdb->prefix . 'wjm_forms', $data, ['id' => (int) $_POST['wjm_form_id']]);
+            echo '<div class="notice notice-success"><p>Formulário atualizado com sucesso.</p></div>';
+        } else {
+            $wpdb->insert($wpdb->prefix . 'wjm_forms', $data);
+            echo '<div class="notice notice-success"><p>Formulário criado com sucesso.</p></div>';
+        }
+    }
+
+    echo '</div>';
+    
 }

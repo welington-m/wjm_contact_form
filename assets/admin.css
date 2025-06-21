@@ -1,0 +1,18 @@
+/* Estilos do painel de administração */
+.wjm-admin-wrapper, .wjm-admin-editor {
+  font-family: Arial, sans-serif;
+}
+
+.wjm-admin-wrapper h1, .wjm-admin-editor h1 {
+  margin-bottom: 20px;
+}
+
+.wjm-admin-wrapper table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.wjm-admin-wrapper th, .wjm-admin-wrapper td {
+  padding: 10px;
+  text-align: left;
+}
