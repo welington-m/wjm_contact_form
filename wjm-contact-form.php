@@ -33,6 +33,7 @@ add_action('admin_menu', function() {
 
 add_action('admin_init', function() {
     register_setting('wjm_contact_form_settings', 'wjm_contact_email');
+    register_setting('wjm_contact_form_settings', 'wjm_contact_select_options');
 
     add_settings_section(
         'wjm_contact_main_section',
@@ -51,6 +52,13 @@ add_action('admin_init', function() {
         'wjm-contact-form',
         'wjm_contact_main_section'
     );
+
+    add_settings_section('wjm_contact_select_section', 'Opções do campo "Assunto"', null, 'wjm-contact-form');
+
+    add_settings_field('wjm_contact_select_options', 'Valores do campo select (1 por linha)', function () {
+        $value = get_option('wjm_contact_select_options', "Alistamento\nContato");
+        echo "<textarea name='wjm_contact_select_options' rows='5' cols='50'>" . esc_textarea($value) . "</textarea>";
+    }, 'wjm-contact-form', 'wjm_contact_select_section');
 });
 
 function wjm_contact_form_settings_page() {

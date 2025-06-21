@@ -9,9 +9,10 @@ class FormStorage {
         $wpdb->insert(
             $wpdb->prefix . 'wjm_contact_form',
             [
-                'name'    => $data->name,
-                'email'   => $data->email->get(),
+                'name' => $data->name,
+                'email' => $data->email->get(),
                 'message' => $data->message,
+                'topic' => $data->topic,
                 'created_at' => current_time('mysql')
             ]
         );

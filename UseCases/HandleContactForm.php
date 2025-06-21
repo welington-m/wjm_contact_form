@@ -11,13 +11,11 @@ class HandleContactForm {
         $formData = new FormData(
             $data['name'] ?? '',
             new Email($data['email'] ?? ''),
-            $data['message'] ?? ''
+            $data['message'] ?? '',
+            $data['topic'] ?? ''
         );
 
-        $storage = new FormStorage();
-        $storage->save($formData);
-
-        $sender = new EmailSender();
-        $sender->send($formData);
+        (new FormStorage())->save($formData);
+        (new EmailSender())->send($formData);
     }
 }
