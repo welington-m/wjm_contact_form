@@ -6,6 +6,11 @@ Version: 1.1
 Author: Welington Miyazato
 */
 
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+    require_once __DIR__ . '/vendor/autoload.php';
+}
+
+
 add_shortcode('wjm_contact_form', function() {
     ob_start();
     include plugin_dir_path(__FILE__) . 'form-handler.php';
