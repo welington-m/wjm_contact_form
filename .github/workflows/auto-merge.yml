@@ -1,0 +1,33 @@
+name: Auto Merge develop to main
+
+on:
+  pull_request:
+    branches: [develop]
+    types: [closed]
+
+jobs:
+  merge-develop-to-main:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Importante para pegar todo o histórico
+        
+      - name: Merge develop into main
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "github-actions-bot@users.noreply.github.com"
+          
+          git checkout main
+          git pull origin main
+          git merge --no-ff develop -m "Auto-merge: develop into main [skip ci]"
+          
+          # Verifica se houve alterações para evitar push desnecessário
+          if git diff --quiet HEAD HEAD~1; then
+            echo "Nenhuma alteração para enviar"
+          else
+            git push origin main
+          fi
