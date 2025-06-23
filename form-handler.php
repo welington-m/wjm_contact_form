@@ -1,28 +1,38 @@
 <?php
-// Responsável pelo tratamento das submissões de formulário WJM
-
-function wjm_handle_form_submission($form_id, $config) {
+function wjm_process_form_submission($form_id, $fields) {
     $errors = [];
-    $submitted = [];
+    $values = [];
 
-    foreach ($config['fields'] as $field) {
-        $name = sanitize_text_field($field['name']);
-        $value = isset($_POST[$name]) ? trim($_POST[$name]) : '';
+    foreach ($fields as $field) {
+        $name = $field['name'] ?? '';
+        $label = $field['label'] ?? '';
+        $required = $field['required'] ?? false;
 
-        if (!empty($field['required']) && empty($value)) {
-            $errors[$name] = $field['label'] . ' é obrigatório.';
+        $value = sanitize_text_field($_POST[$name] ?? '');
+
+        if ($required && empty($value)) {
+            $errors[] = "$label é obrigatório.";
         }
 
-        $submitted[$name] = sanitize_text_field($value);
+        $values[$name] = $value;
     }
 
     if (!empty($errors)) {
-        return ['errors' => $errors, 'values' => $submitted];
+        return ['success' => false, 'errors' => $errors];
     }
 
-    // Exemplo: aqui você pode enviar e-mail ou armazenar os dados
-    // mail(...), wp_insert_post(...), etc.
+    // Salvar mensagem no banco de dados
+    global $wpdb;
+    $wpdb->insert(
+        $wpdb->prefix . 'wjm_form_messages',
+        [
+            'form_id' => $form_id,
+            'data' => maybe_serialize($values),
+            'submitted_at' => current_time('mysql')
+        ]
+    );
 
-    return ['success' => true, 'values' => $submitted];
+    // Você pode colocar lógica de envio de e-mail aqui, se quiser
+
+    return ['success' => true];
 }
-?>

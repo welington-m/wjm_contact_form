@@ -17,21 +17,13 @@ function wjm_render_form_frontend($atts) {
             return '<p>Erro de segurança. Por favor, recarregue a página.</p>';
         }
 
-        $errors = [];
-        $submitted = [];
-        foreach ($fields as $field) {
-            $name = sanitize_text_field($field['name']);
-            $value = isset($_POST[$name]) ? trim($_POST[$name]) : '';
-            if (!empty($field['required']) && empty($value)) {
-                $errors[] = $field['label'] . ' é obrigatório.';
-            }
-            $submitted[$name] = sanitize_text_field($value);
-        }
+        require_once plugin_dir_path(__FILE__) . 'form-handler.php';
+        $result = wjm_process_form_submission($form_id, $fields);
 
-        if (empty($errors)) {
+        if ($result['success']) {
             $output .= '<div class="wjm-success">Formulário enviado com sucesso!</div>';
         } else {
-            $output .= '<div class="wjm-errors"><ul><li>' . implode('</li><li>', $errors) . '</li></ul></div>';
+            $output .= '<div class="wjm-errors"><ul><li>' . implode('</li><li>', $result['errors']) . '</li></ul></div>';
         }
     }
 

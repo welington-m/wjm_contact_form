@@ -1,43 +1,45 @@
 <?php
-function wjm_render_form_editor() {
+function wjm_render_forms_list() {
     global $wpdb;
-    $is_edit = isset($_GET['id']);
-    $form = null;
+    $table_name = $wpdb->prefix . 'wjm_forms';
 
-    if ($is_edit) {
-        $form = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}wjm_forms WHERE id = %d", $_GET['id']));
+    // Processar exclusão se houver POST
+    if (isset($_POST['wjm_delete_form']) && isset($_POST['form_id']) && check_admin_referer('wjm_delete_form_' . $_POST['form_id'])) {
+        $wpdb->delete($table_name, ['id' => (int) $_POST['form_id']]);
+        echo '<div class="notice notice-success"><p>Formulário excluído com sucesso.</p></div>';
     }
 
-    echo '<div class="wrap"><h1>' . ($is_edit ? 'Editar' : 'Novo') . ' Formulário</h1>';
-    echo '<form method="post">';
-    wp_nonce_field('wjm_save_form', 'wjm_form_nonce');
+    $forms = $wpdb->get_results("SELECT * FROM $table_name ORDER BY created_at DESC");
 
-    echo '<table class="form-table">';
-    echo '<tr><th><label for="wjm_form_title">Título</label></th><td><input type="text" name="wjm_form_title" value="' . esc_attr($form->title ?? '') . '" required></td></tr>';
-    echo '<tr><th><label for="wjm_form_slug">Slug</label></th><td><input type="text" name="wjm_form_slug" value="' . esc_attr($form->slug ?? '') . '"></td></tr>';
-    echo '<tr><th><label for="wjm_form_config">Editor de Formulário (JSON)</label></th><td><textarea name="wjm_form_config" rows="10" cols="70" required>' . esc_textarea($form->config ?? '{"fields":[]}') . '</textarea></td></tr>';
-    echo '</table>';
+    echo '<div class="wrap"><h1>Formulários WJM <a href="admin.php?page=wjm-form-editor" class="page-title-action">Adicionar Novo</a> <a href="admin.php?page=wjm-form-mensagens" class="page-title-action">Gerenciar Mensagens</a></h1>';
 
-    if ($is_edit) {
-        echo '<input type="hidden" name="wjm_form_id" value="' . esc_attr($form->id) . '">';
-    }
+    if ($forms) {
+        echo '<table class="widefat fixed striped">';
+        echo '<thead><tr><th>ID</th><th>Título</th><th>Slug</th><th>Shortcode</th><th>Data</th><th>Ações</th></tr></thead><tbody>';
 
-    submit_button('Salvar Formulário');
-
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['wjm_form_nonce']) && wp_verify_nonce($_POST['wjm_form_nonce'], 'wjm_save_form')) {
-        $data = [
-            'title' => sanitize_text_field($_POST['wjm_form_title']),
-            'slug' => sanitize_title($_POST['wjm_form_slug']),
-            'config' => wp_unslash($_POST['wjm_form_config'])
-        ];
-        if (isset($_POST['wjm_form_id'])) {
-            $wpdb->update($wpdb->prefix . 'wjm_forms', $data, ['id' => (int) $_POST['wjm_form_id']]);
-            echo '<div class="notice notice-success"><p>Formulário atualizado com sucesso.</p></div>';
-        } else {
-            $wpdb->insert($wpdb->prefix . 'wjm_forms', $data);
-            echo '<div class="notice notice-success"><p>Formulário criado com sucesso.</p></div>';
+        foreach ($forms as $form) {
+            $shortcode = '[wjm_form id=' . esc_attr($form->id) . ']';
+            echo '<tr>';
+            echo '<td>' . esc_html($form->id) . '</td>';
+            echo '<td>' . esc_html($form->title) . '</td>';
+            echo '<td>' . esc_html($form->slug) . '</td>';
+            echo '<td><code>' . esc_html($shortcode) . '</code></td>';
+            echo '<td>' . esc_html($form->created_at) . '</td>';
+            echo '<td>';
+            echo '<a href="admin.php?page=wjm-form-editor&id=' . esc_attr($form->id) . '" class="button">Editar</a> ';
+            echo '<form method="post" style="display:inline;" onsubmit="return confirm(\'Tem certeza que deseja excluir este formulário?\')">';
+            echo '<input type="hidden" name="form_id" value="' . esc_attr($form->id) . '">';
+            wp_nonce_field('wjm_delete_form_' . $form->id);
+            echo '<input type="submit" name="wjm_delete_form" class="button" value="Excluir">';
+            echo '</form> ';
+            echo '<button class="button" onclick="navigator.clipboard.writeText(\'' . esc_js($shortcode) . '\')">Copiar</button>';
+            echo '</td>';
+            echo '</tr>';
         }
-    }
 
-    echo '</form></div>';
+        echo '</tbody></table>';
+    } else {
+        echo '<p>Nenhum formulário criado ainda.</p>';
+    }
+    echo '</div>';
 }
