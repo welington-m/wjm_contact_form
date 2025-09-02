@@ -1,0 +1,6 @@
+/vendor/
+/.idea/
+.env
+wp/
+/vendor/
+phpunit.xml

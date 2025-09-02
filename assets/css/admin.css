@@ -1,0 +1,283 @@
+/*!
+ * WJM Contact Form Stylesheet
+ * Autor: Welington Jose Miyazato
+ * Descrição: Estilos personalizados para o formulário público do plugin WJM Contact Form.
+ * Versão: 1.1.0
+ * Data de Criação: 2025-06-24
+ * Licença: MIT
+ * Website: https://welingtonmiyazato.tech
+ * Observação: Este arquivo define o design responsivo, moderno e acessível do formulário no frontend do WordPress.
+ */
+/* =============================================
+   ESTILOS GERAIS DO ADMIN
+   ============================================= */
+
+/* Container principal do editor */
+.wjm-form-editor-container {
+  max-width: 1000px;
+  margin: 20px 0;
+}
+
+/* Grupos de campos do formulário */
+.wjm-form-group {
+  margin-bottom: 25px;
+  background: #fff;
+  padding: 20px;
+  border: 1px solid #ccd0d4;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* Títulos das seções */
+.wjm-form-group h2 {
+  margin-top: 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+/* =============================================
+   EDITOR VISUAL
+   ============================================= */
+
+#wjm-visual-editor {
+  background: #fff;
+  border: 1px solid #ccd0d4;
+  padding: 20px;
+  margin-top: 20px;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  display: none; /* Inicialmente escondido */
+}
+
+#wjm-visual-editor.active {
+  display: block;
+}
+
+/* Container de campos */
+.wjm-fields-container {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Estilo de cada campo */
+.wjm-field {
+  border: 1px solid #ccd0d4;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  position: relative;
+}
+
+/* Cabeçalho do campo */
+.wjm-field-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px dashed #ccc;
+  padding-bottom: 6px;
+  margin-bottom: 10px;
+}
+
+.wjm-field-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #23282d;
+}
+
+/* Botão remover */
+.wjm-remove-field {
+  background-color: #dc3232;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.wjm-remove-field:hover {
+  background-color: #b71c1c;
+}
+
+/* Corpo do campo */
+.wjm-field-body {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.wjm-field-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.wjm-field-row label {
+  font-weight: 500;
+  font-size: 13px;
+  color: #555;
+}
+
+.wjm-field-row input[type="text"],
+.wjm-field-row input[type="email"],
+.wjm-field-row select,
+.wjm-field-row textarea {
+  padding: 8px;
+  border: 1px solid #ccd0d4;
+  border-radius: 3px;
+  width: 100%;
+  background: #fff;
+  font-size: 14px;
+}
+
+.wjm-field-row input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+/* Área de opções para campos select */
+.wjm-field-options {
+  display: none;
+  margin-top: 10px;
+  padding: 10px;
+  background: #f0f0f1;
+  border-radius: 4px;
+}
+
+.wjm-field-options.active {
+  display: block;
+}
+
+/* Itens de opções (select/radio/checkbox) */
+.wjm-option-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+.wjm-option-item input {
+  flex: 1;
+}
+
+/* Botão de adicionar opção */
+.wjm-add-option {
+  margin-top: 8px;
+}
+
+/* =============================================
+   BOTÕES E CONTROLES
+   ============================================= */
+
+/* Botões principais */
+.wjm-editor-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+#wjm-add-field,
+#wjm-update-json {
+  margin-top: 0;
+}
+
+/* Botão de toggle do editor */
+#wjm-toggle-editor {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Botão de submit do formulário */
+.wjm-form-submit {
+  margin-top: 20px;
+}
+
+/* Ícones nos botões */
+.button .dashicons {
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+/* =============================================
+   EDITOR JSON
+   ============================================= */
+
+.wjm-json-editor {
+  position: relative;
+}
+
+#wjm_config_json {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  min-height: 300px;
+  white-space: pre;
+}
+
+/* =============================================
+   FEEDBACK E MENSAGENS
+   ============================================= */
+
+.wjm-form-error {
+  color: #dc3232;
+  background: #fef6f6;
+  padding: 10px;
+  border-left: 4px solid #dc3232;
+  margin: 5px 0 15px;
+}
+
+.wjm-form-success {
+  color: #4ab866;
+  background: #f6fef6;
+  padding: 10px;
+  border-left: 4px solid #4ab866;
+  margin: 5px 0 15px;
+}
+
+/* Banner */
+.wjm-dashboard-banner {
+    margin: -20px -20px 20px -20px;
+    border-bottom: 1px solid #ccd0d4;
+}
+
+.wjm-dashboard-banner img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+/* Ajuste de layout */
+.wjm-dashboard-content {
+    margin-top: 30px;
+}
+
+/* Mobile */
+@media (max-width: 782px) {
+    .wjm-dashboard-banner {
+        margin: -10px -10px 15px -10px;
+        text-align: center;
+    }
+}
+
+/* =============================================
+   RESPONSIVIDADE
+   ============================================= */
+
+@media (max-width: 782px) {
+  .wjm-field-body {
+    grid-template-columns: 1fr;
+  }
+  
+  .wjm-form-group {
+    padding: 15px;
+  }
+  
+  #wjm_config_json {
+    min-height: 200px;
+  }
+}

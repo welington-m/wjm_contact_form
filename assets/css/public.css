@@ -1,0 +1,170 @@
+/*!
+ * WJM Contact Form Stylesheet
+ * Autor: Welington Jose Miyazato
+ * Descrição: Estilos personalizados para o formulário público do plugin WJM Contact Form.
+ * Versão: 1.1.0
+ * Data de Criação: 2025-06-24
+ * Licença: MIT
+ * Website: https://welingtonmiyazato.tech
+ * Observação: Este arquivo define o design responsivo, moderno e acessível do formulário no frontend do WordPress.
+ */
+/* =============================================
+   ESTILOS GERAIS DO FRONT
+   ============================================= */
+.wjm-contact-form {
+  max-width: 600px;
+  margin: 30px auto;
+  padding: 30px;
+  background-color: #f9f9f9;
+  border: 1px solid #e1e1e1;
+  border-radius: 12px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.wjm-contact-form label {
+  display: block;
+  margin-bottom: 6px; /* aproxima o título dos itens */
+  font-weight: 700;   /* título mais forte como no screenshot */
+  color: #111;        /* preto mais marcado */
+}
+
+.wjm-contact-form input,
+.wjm-contact-form select,
+.wjm-contact-form textarea {
+  width: 100%;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  font-size: 16px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  box-sizing: border-box;
+}
+
+.wjm-contact-form input:focus,
+.wjm-contact-form select:focus,
+.wjm-contact-form textarea:focus {
+  border-color: #0073aa;
+  box-shadow: 0 0 0 3px rgba(0, 115, 170, 0.15);
+  outline: none;
+}
+
+.wjm-contact-form textarea {
+  resize: vertical;
+  min-height: 120px;
+  line-height: 1.5;
+}
+
+/* Listas de opções (radio/checkbox) */
+.wjm-options {
+  display: flex;
+  flex-direction: column;     /* itens em coluna */
+  gap: 12px;                  /* espaçamento vertical entre opções */
+  margin: 0 0 16px 0;         /* remove espaço extra acima, mantém base */
+}
+
+.wjm-option {
+  display: flex;
+  align-items: center;        /* alinha checkbox e texto */
+  gap: 10px;                  /* espaçamento horizontal entre checkbox e rótulo */
+  line-height: 1.2;           /* altura de linha mais compacta */
+  font-weight: 400;           /* rótulos das opções não são negrito */
+}
+
+/* garante aparência nativa e tamanho consistente do checkbox */
+.wjm-option input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  -webkit-appearance: checkbox;
+  appearance: auto;
+  margin: 0;
+  padding: 0;
+}
+
+.wjm-contact-form button {
+  padding: 14px 24px;
+  background-color: #0073aa;
+  color: #fff;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.wjm-contact-form button:hover {
+  background-color: #005177;
+}
+
+.wjm-success,
+.wjm-errors {
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 6px;
+  font-size: 15px;
+}
+
+.wjm-success {
+  background-color: #dff0d8;
+  border: 1px solid #c3e6cb;
+  color: #3c763d;
+}
+
+.wjm-errors {
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+}
+
+.wjm-errors ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.contact-info {
+  padding: 20px;
+  color: #333;
+  font-family: 'Arial', sans-serif;
+}
+
+.contact-info h2 {
+  font-size: 24px;
+  margin-bottom: 10px;
+  color: #111;
+}
+
+.contact-info p {
+  font-size: 16px;
+  margin-bottom: 15px;
+  line-height: 1.5;
+}
+
+.contact-info ul {
+  list-style: none;
+  padding: 0;
+}
+
+.contact-info li {
+  margin-bottom: 8px;
+}
+
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .wjm-contact-form {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .wjm-contact-form {
+    padding: 15px;
+  }
+
+  .wjm-contact-form button {
+    width: 100%;
+  }
+}
