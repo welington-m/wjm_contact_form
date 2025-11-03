@@ -20,7 +20,8 @@ final class UpdateFormDTO
         public readonly ?string $recipientEmail,
         public readonly string $submitButtonText,
         public readonly string $errorMessage,
-        public readonly string $successMessage
+        public readonly string $successMessage,
+        public readonly int $layout = 1
     ) {
         
         if ($this->id <= 0) {
@@ -33,6 +34,10 @@ final class UpdateFormDTO
 
         if (!is_array($this->fields)) {
             throw new \InvalidArgumentException("Campos do formulário devem ser um array.");
+        }
+
+        if (!in_array($this->layout, [1, 2, 3, 4], true)) {
+            throw new \InvalidArgumentException("Layout inválido.");
         }
     }
 }

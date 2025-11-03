@@ -2,7 +2,7 @@
  * WJM Contact Form Stylesheet
  * Autor: Welington Jose Miyazato
  * Descrição: Estilos personalizados para o formulário público do plugin WJM Contact Form.
- * Versão: 1.1.0
+ * Versão: 1.0.1
  * Data de Criação: 2025-06-24
  * Licença: MIT
  * Website: https://welingtonmiyazato.tech
@@ -116,6 +116,20 @@
   gap: 4px;
 }
 
+.wjm-field-row-layout {
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.wjm-field-column-wrapper,
+.wjm-field-placeholder-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 .wjm-field-row label {
   font-weight: 500;
   font-size: 13px;
@@ -136,6 +150,15 @@
 
 .wjm-field-row input[type="checkbox"] {
   margin-right: 8px;
+}
+
+/* Controles de coluna e largura total */
+.wjm-field-column {
+  width: 100%;
+}
+
+.wjm-field-fullwidth {
+  margin-top: 4px;
 }
 
 /* Área de opções para campos select */

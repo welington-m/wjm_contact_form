@@ -43,6 +43,19 @@ class FormController
         $this->view->render('admin/forms/edit', ['form' => $form]);
     }
 
+    public function style(): void
+    {
+        $id = $_GET['id'] ?? null;
+
+        if ($id) {
+            $form = $this->getFormUseCase->execute((int) $id);
+        } else {
+            $form = null;
+        }
+
+        $this->view->render('admin/forms/style', ['form' => $form]);
+    }
+
     public function save(array $request): bool
     {
         $fields = $request['fields']['fields'] ?? $request['fields'] ?? [];
@@ -54,7 +67,8 @@ class FormController
                 recipientEmail: $request['recipient'] ?? null,
                 submitButtonText: $request['submit_button_text'] ?? 'Enviar',
                 errorMessage: $request['error_message'] ?? '',
-                successMessage: $request['success_message'] ?? ''
+                successMessage: $request['success_message'] ?? '',
+                layout: isset($request['layout']) ? (int) $request['layout'] : 1
             );
 
             $this->createFormUseCase->execute($dto);
@@ -66,7 +80,8 @@ class FormController
                 recipientEmail: $request['recipient'] ?? null,
                 submitButtonText: $request['submit_button_text'] ?? 'Enviar',
                 errorMessage: $request['error_message'] ?? '',
-                successMessage: $request['success_message'] ?? ''
+                successMessage: $request['success_message'] ?? '',
+                layout: isset($request['layout']) ? (int) $request['layout'] : 1
             );
 
             $this->updateFormUseCase->execute($dto);
@@ -87,6 +102,56 @@ class FormController
         $this->save($postData);
 
         $redirectUrl = admin_url('admin.php?page=wjm_forms');
+        wp_redirect($redirectUrl);
+        exit;
+    }
+
+    public function saveStyle(array $request): bool
+    {
+        if (empty($request['id'])) {
+            return false;
+        }
+
+        $existingForm = $this->getFormUseCase->execute((int) $request['id']);
+
+        if (!$existingForm) {
+            return false;
+        }
+
+        $dto = new UpdateFormDTO(
+            id: $existingForm->id,
+            title: $existingForm->title,
+            fields: $request['fields'] ?? $existingForm->fields,
+            recipientEmail: $existingForm->recipientEmail,
+            submitButtonText: $existingForm->submitButtonText,
+            errorMessage: $existingForm->errorMessage,
+            successMessage: $existingForm->successMessage,
+            layout: isset($request['layout']) ? (int) $request['layout'] : $existingForm->layout,
+        );
+
+        $this->updateFormUseCase->execute($dto);
+
+        return true;
+    }
+
+    public function handleSaveStyle(): void
+    {
+        if (!current_user_can('manage_options')) {
+            wp_die(__('Você não tem permissão para isso.', 'wjm'));
+        }
+
+        $id = isset($_POST['id']) ? (int) $_POST['id'] : 0;
+
+        if ($id <= 0 || !wp_verify_nonce($_POST['_wpnonce'] ?? '', 'wjm_save_form_style_' . $id)) {
+            wp_die(__('Ação não autorizada.', 'wjm'), 'Erro', ['response' => 403]);
+        }
+
+        $postData = $_POST;
+        $postData['fields'] = json_decode(stripslashes($postData['fields'] ?? '[]'), true);
+
+        $this->saveStyle($postData);
+
+        $redirectUrl = admin_url('admin.php?page=wjm_form_editor&id=' . $id);
         wp_redirect($redirectUrl);
         exit;
     }

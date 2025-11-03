@@ -17,6 +17,7 @@ class FormFactory
         return new Form(
             id: null,
             title: $dto->title,
+            layout: $dto->layout,
             fields: self::mapFields($dto->fields),
             recipientEmail: $dto->recipientEmail,
             submitButtonText: $dto->submitButtonText,
@@ -33,6 +34,7 @@ class FormFactory
         return new Form(
             id: $dto->id,
             title: $dto->title,
+            layout: $dto->layout,
             fields: self::mapFields($dto->fields),
             recipientEmail: $dto->recipientEmail,
             submitButtonText: $dto->submitButtonText,
@@ -49,10 +51,13 @@ class FormFactory
         return array_map(
             fn($field) => new FormField(
                 name: $field['name'] ?? '',
-                type: $field['type'] ?? 'text',
                 label: $field['label'] ?? '',
+                type: $field['type'] ?? 'text',
                 required: $field['required'] ?? false,
-                options: $field['options'] ?? []
+                options: $field['options'] ?? [],
+                column: isset($field['column']) ? (int) $field['column'] : 1,
+                fullWidth: $field['fullWidth'] ?? false,
+                placeholder: $field['placeholder'] ?? null
             ),
             $fields
         );

@@ -2,7 +2,7 @@
  * WJM Contact Form Stylesheet
  * Autor: Welington Jose Miyazato
  * Descrição: Estilos personalizados para o formulário público do plugin WJM Contact Form.
- * Versão: 1.1.0
+ * Versão: 1.0.1
  * Data de Criação: 2025-06-24
  * Licença: MIT
  * Website: https://welingtonmiyazato.tech
@@ -12,9 +12,9 @@
    ESTILOS GERAIS DO FRONT
    ============================================= */
 .wjm-contact-form {
-  max-width: 600px;
+  max-width: 1200px;
   margin: 30px auto;
-  padding: 30px;
+  padding: 24px;
   background-color: #f9f9f9;
   border: 1px solid #e1e1e1;
   border-radius: 12px;
@@ -24,9 +24,9 @@
 
 .wjm-contact-form label {
   display: block;
-  margin-bottom: 6px; /* aproxima o título dos itens */
-  font-weight: 700;   /* título mais forte como no screenshot */
-  color: #111;        /* preto mais marcado */
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
 }
 
 .wjm-contact-form input,
@@ -51,36 +51,67 @@
   outline: none;
 }
 
+
 .wjm-contact-form textarea {
   resize: vertical;
   min-height: 120px;
   line-height: 1.5;
 }
 
+/* Grid layout */
+.wjm-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.wjm-grid.columns-1 {
+  grid-template-columns: 1fr;
+}
+
+.wjm-grid.columns-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.wjm-grid.columns-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.wjm-grid.columns-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.wjm-grid .col-1 {
+  grid-column: span 1;
+}
+
+.wjm-grid .col-2 {
+  grid-column: span 2;
+}
+
+.wjm-grid .col-3 {
+  grid-column: span 3;
+}
+
+.wjm-grid .col-4 {
+  grid-column: span 4;
+}
+
+.wjm-grid .full-width {
+  grid-column: 1 / -1;
+}
+
 /* Listas de opções (radio/checkbox) */
 .wjm-options {
   display: flex;
-  flex-direction: column;     /* itens em coluna */
-  gap: 12px;                  /* espaçamento vertical entre opções */
-  margin: 0 0 16px 0;         /* remove espaço extra acima, mantém base */
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
 }
 
 .wjm-option {
   display: flex;
-  align-items: center;        /* alinha checkbox e texto */
-  gap: 10px;                  /* espaçamento horizontal entre checkbox e rótulo */
-  line-height: 1.2;           /* altura de linha mais compacta */
-  font-weight: 400;           /* rótulos das opções não são negrito */
-}
-
-/* garante aparência nativa e tamanho consistente do checkbox */
-.wjm-option input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  -webkit-appearance: checkbox;
-  appearance: auto;
-  margin: 0;
-  padding: 0;
+  align-items: center;
+  gap: 8px;
 }
 
 .wjm-contact-form button {
@@ -159,6 +190,12 @@
   }
 }
 
+@media (max-width: 600px) {
+  .wjm-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 @media (max-width: 480px) {
   .wjm-contact-form {
     padding: 15px;
@@ -168,3 +205,14 @@
     width: 100%;
   }
 }
+
+/* Estilo refinado para campos radio e checkbox */
+.wjm-option input[type="checkbox"],
+.wjm-option input[type="radio"] {
+  accent-color: #0073aa; /* cor azul padrão do tema */
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  flex-shrink: 0;
+}
+

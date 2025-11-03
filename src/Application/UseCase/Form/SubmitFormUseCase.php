@@ -26,18 +26,39 @@ final class SubmitFormUseCase
         }
 
         $message = $this->messageFactory->fromDTO($dto, $form);
-        
+
         try {
-            $this->messageRepository->save($message);
-            $this->emailSender->send(
+            $saved = $this->messageRepository->save($message);
+
+            if (!$saved) {
+                return [
+                    'success' => false,
+                    'error' => $form->errorMessage ?? 'Falha ao salvar mensagem',
+                ];
+            }
+
+            $emailSent = $this->emailSender->send(
                 to: $form->recipientEmail,
                 subject: "Nova mensagem do formulário: {$form->title}",
                 body: $message->toHtml()
             );
-            
-            return ['success' => true];
+
+            if (!$emailSent) {
+                return [
+                    'success' => false,
+                    'error' => $form->errorMessage ?? 'Falha ao enviar o e-mail.',
+                ];
+            }
+
+            return [
+                'success' => true,
+                'message' => $form->successMessage ?? 'Formulário enviado com sucesso!',
+            ];
         } catch (\Exception $e) {
-            return ['success' => false, 'error' => $e->getMessage()];
+            return [
+                'success' => false,
+                'error' => $form->errorMessage ?? 'Ocorreu um erro ao enviar o formulário.',
+            ];
         }
     }
 }

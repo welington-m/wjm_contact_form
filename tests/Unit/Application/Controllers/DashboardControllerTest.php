@@ -21,6 +21,7 @@ namespace Tests\Unit\Application\Controllers;
 
 use PHPUnit\Framework\TestCase;
 use WJM\Application\Controllers\DashboardController;
+use WJM\Application\UseCase\Form\ListFormsUseCase;
 use WJM\Domain\Repositories\FormRepositoryInterface;
 use WJM\Infra\WordPress\View;
 use WJM\Infra\WordPress\Helpers\UrlHelper;
@@ -30,11 +31,12 @@ class DashboardControllerTest extends TestCase
 {
     public function testShowRendersDashboardViewWithCorrectData(): void
     {
-        $formRepositoryMock = $this->createMock(FormRepositoryInterface::class);
-        $formRepositoryMock
-            ->expects($this->once())
+        $formRepository = $this->createMock(FormRepositoryInterface::class);
+        $formRepository
+            ->expects($this->exactly(2))
             ->method('findAll')
             ->willReturn([]);
+        $listFormsUseCase = new ListFormsUseCase($formRepository);
 
         $viewMock = $this->createMock(View::class);
         $viewMock
@@ -48,7 +50,7 @@ class DashboardControllerTest extends TestCase
             );
         $urlHelper = new UrlHelper('/fake/plugin/file.php');
 
-        $controller = new DashboardController($formRepositoryMock, $viewMock, $urlHelper);
+        $controller = new DashboardController($listFormsUseCase, $viewMock, $urlHelper);
         $controller->show();
     }
 }

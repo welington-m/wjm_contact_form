@@ -44,6 +44,7 @@ class HookRegistrar
         
         // Formulários
         add_action('admin_post_wjm_save_form', [$this->formController, 'handleSave']);
+        add_action('admin_post_wjm_save_form_style', [$this->formController, 'handleSaveStyle']);
         add_action('admin_post_wjm_delete_form', [$this->formController, 'delete']);
         
         // Submissões

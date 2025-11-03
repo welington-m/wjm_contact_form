@@ -8,6 +8,8 @@ use PHPUnit\Framework\TestCase;
 use WJM\Application\UseCase\Form\DTO\UpdateFormDTO;
 use WJM\Application\UseCase\Form\UpdateFormUseCase;
 use WJM\Domain\Repositories\FormRepositoryInterface;
+use WJM\Domain\Entities\Form;
+use WJM\Domain\Factories\FormFactory;
 
 class UpdateFormUseCaseTest extends TestCase
 {
@@ -20,16 +22,20 @@ class UpdateFormUseCaseTest extends TestCase
             recipientEmail: 'novo@email.com',
             submitButtonText: 'Atualizar',
             errorMessage: 'Falha ao atualizar',
-            successMessage: 'Atualizado com sucesso'
+            successMessage: 'Atualizado com sucesso',
+            layout: 2
         );
 
         $repositoryMock = $this->createMock(FormRepositoryInterface::class);
         $repositoryMock->expects($this->once())
-            ->method('update');
+            ->method('save')
+            ->with($this->callback(function (Form $form) use ($dto) {
+                return $form->id === $dto->id && $form->layout === $dto->layout;
+            }));
 
-        $useCase = new UpdateFormUseCase($repositoryMock);
-        $useCase->execute(99, $dto); // ID 99 como exemplo
+        $useCase = new UpdateFormUseCase($repositoryMock, new FormFactory());
+        $useCase->execute($dto);
 
-        $this->assertTrue(true); // Confirma que executou sem erro
+        $this->assertTrue(true);
     }
 }

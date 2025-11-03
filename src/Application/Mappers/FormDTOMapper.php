@@ -18,12 +18,17 @@ class FormDTOMapper
                     'type' => $field->type,
                     'label' => $field->label,
                     'required' => $field->required,
+                    'options' => $field->options,
+                    'column' => $field->column,
+                    'fullWidth' => $field->fullWidth,
+                    'placeholder' => $field->placeholder,
                 ];
             }, $form->fields),
             recipientEmail: $form->recipientEmail,
             submitButtonText: $form->submitButtonText,
             errorMessage: $form->errorMessage,
-            successMessage: $form->successMessage
+            successMessage: $form->successMessage,
+            layout: $form->layout
         );
     }
 }

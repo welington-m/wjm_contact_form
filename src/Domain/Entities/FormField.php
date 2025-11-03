@@ -9,6 +9,9 @@ class FormField
         public string $label,
         public string $type,
         public bool $required = false,
-        public array $options = [] // para selects, radios, checkboxes
+        public array $options = [], // para selects, radios, checkboxes
+        public int $column = 1,
+        public bool $fullWidth = false,
+        public ?string $placeholder = null
     ) {}
 }

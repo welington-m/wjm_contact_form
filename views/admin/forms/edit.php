@@ -29,9 +29,21 @@
                         <tr>
                             <th scope="row"><label for="wjm-form-recipient">E-mail de Destino</label></th>
                             <td>
-                                <input type="email" id="wjm-form-recipient" name="recipient" class="regular-text" 
+                                <input type="email" id="wjm-form-recipient" name="recipient" class="regular-text"
                                        value="<?php echo $form ? esc_attr($form->recipientEmail) : ''; ?>">
                                 <p class="description">Deixe em branco para usar o e-mail padrão do WordPress</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="wjm-form-columns">Colunas</label></th>
+                            <td>
+                                <?php $currentLayout = $form ? $form->layout : 1; ?>
+                                <select id="wjm-form-columns" name="layout">
+                                    <option value="1" <?php selected($currentLayout, 1); ?>>1</option>
+                                    <option value="2" <?php selected($currentLayout, 2); ?>>2</option>
+                                    <option value="3" <?php selected($currentLayout, 3); ?>>3</option>
+                                    <option value="4" <?php selected($currentLayout, 4); ?>>4</option>
+                                </select>
                             </td>
                         </tr>
                     </tbody>
@@ -116,6 +128,27 @@
                                                 Obrigatório
                                             </label>
                                         </div>
+                                        <div class="wjm-field-row wjm-field-row-layout">
+                                            <label class="wjm-field-column-wrapper">Coluna:
+                                                <select class="wjm-field-column">
+                                                    <?php for ($i = 1; $i <= 4; $i++): ?>
+                                                        <option value="<?php echo $i; ?>" <?php selected($field['column'] ?? 1, $i); ?>><?php echo $i; ?></option>
+                                                    <?php endfor; ?>
+                                                </select>
+                                            </label>
+                                            <label class="wjm-field-placeholder-wrapper">Placeholder:
+                                                <input type="text"
+                                                       class="wjm-field-placeholder"
+                                                       placeholder="Ex: Digite seu texto"
+                                                       value="<?php echo esc_attr($field['placeholder'] ?? ''); ?>">
+                                            </label>
+                                        </div>
+                                        <div class="wjm-field-row">
+                                            <label>
+                                                <input type="checkbox" class="wjm-field-fullwidth" <?php checked($field['fullWidth'] ?? false); ?>>
+                                                Largura total
+                                            </label>
+                                        </div>
                                         <!-- Bloco de opções para campos select/radio/checkbox -->
                                         <div class="wjm-field-options" style="<?php echo in_array(($field['type'] ?? ''), ['select','radio','checkbox']) ? '' : 'display:none;'; ?>">
                                             <label>Opções:</label>
@@ -161,6 +194,10 @@
         </div>
 
         <div class="wjm-form-submit">
+            <a href="<?php echo admin_url('admin.php?page=wjm_form_style&id=' . ($form->id ?? 0)); ?>"
+               class="button button-secondary button-large">
+                <span class="dashicons dashicons-admin-appearance"></span> Estilizar formulário
+            </a>
             <button type="submit" class="button button-primary button-large">
                 <span class="dashicons dashicons-yes"></span> Salvar Formulário
             </button>
