@@ -25,7 +25,8 @@ class CreateFormUseCaseTest extends TestCase
             recipientEmail: 'contato@empresa.com',
             submitButtonText: 'Enviar Mensagem',
             errorMessage: 'Erro ao enviar.',
-            successMessage: 'Mensagem enviada com sucesso.'
+            successMessage: 'Mensagem enviada com sucesso.',
+            layout: 1
         );
 
         // Mock do repositório
@@ -38,7 +39,8 @@ class CreateFormUseCaseTest extends TestCase
             ->with($this->callback(function (Form $form) use ($dto) {
                 return $form->title === $dto->title
                     && count($form->fields) === count($dto->fields)
-                    && $form->recipientEmail === $dto->recipientEmail;
+                    && $form->recipientEmail === $dto->recipientEmail
+                    && $form->layout === $dto->layout;
             }))
             ->willReturn(99); // simula ID retornado
 

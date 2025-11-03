@@ -22,6 +22,7 @@ jQuery(document).ready(function ($) {
     const $addFieldBtn = $('#wjm-add-field');
     const $updateJsonBtn = $('#wjm-update-json');
     const $jsonTextarea = $('#wjm_config_json');
+    const $formColumns = $('#wjm-form-columns');
 
     // Alternar visualização do editor
     $toggleBtn.on('click', function () {
@@ -34,7 +35,16 @@ jQuery(document).ready(function ($) {
     // Adicionar novo campo
     $addFieldBtn.on('click', function () {
         const index = $fieldsContainer.children().length;
-        const fieldHtml = renderField(index, { name: '', label: '', type: 'text', required: false, options: [] });
+        const fieldHtml = renderField(index, {
+            name: '',
+            label: '',
+            type: 'text',
+            required: false,
+            options: [],
+            column: 1,
+            fullWidth: false,
+            placeholder: ''
+        });
         $fieldsContainer.append(fieldHtml);
         attachRemoveHandler();
         attachFieldTypeHandler();
@@ -45,6 +55,10 @@ jQuery(document).ready(function ($) {
     // Renderiza um campo com valores
     function renderField(index, field) {
         const options = Array.isArray(field.options) ? field.options : [];
+        const column = parseInt(field.column, 10) || 1;
+        const fullWidth = !!field.fullWidth;
+        const placeholder = field.placeholder ?? '';
+        const columnOptions = [1,2,3,4].map(n => `<option value="${n}" ${column === n ? 'selected' : ''}>${n}</option>`).join('');
         const optionsHtml = options.map(option => `
             <div class="wjm-option-item">
                 <input type="text" class="wjm-field-option" value="${option}" placeholder="Opção">
@@ -84,6 +98,19 @@ jQuery(document).ready(function ($) {
                     <p>
                         <label><input type="checkbox" class="wjm-field-required" ${field.required ? 'checked' : ''}> Obrigatório</label>
                     </p>
+                    <p class="wjm-field-row-layout">
+                        <label class="wjm-field-column-wrapper">Coluna:
+                            <select class="wjm-field-column">
+                                ${columnOptions}
+                            </select>
+                        </label>
+                        <label class="wjm-field-placeholder-wrapper">Placeholder:
+                            <input type="text" class="wjm-field-placeholder" value="${placeholder}" placeholder="Ex: Digite seu texto">
+                        </label>
+                    </p>
+                    <p>
+                        <label><input type="checkbox" class="wjm-field-fullwidth" ${fullWidth ? 'checked' : ''}> Largura total</label>
+                    </p>
                     <!-- Área de opções exibida apenas para campos com múltiplas escolhas -->
                     <div class="wjm-field-options" style="${['select','radio','checkbox'].includes(field.type) ? '' : 'display:none;'}">
                         <label>Opções:</label>
@@ -113,6 +140,8 @@ jQuery(document).ready(function ($) {
             $(this).attr('data-index', i);
             $(this).find('h3').text(`Campo #${i + 1}`);
         });
+        updateLayoutVisibility();
+        updateFieldColumnOptions();
     }
 
     function attachFieldTypeHandler() {
@@ -156,6 +185,33 @@ jQuery(document).ready(function ($) {
         });
     }
 
+    function updateLayoutVisibility() {
+        const count = $fieldsContainer.children('.wjm-field-card').length;
+        const $row = $formColumns.closest('tr');
+        if (count > 4) {
+            $row.show();
+        } else {
+            $row.hide();
+            $formColumns.val('1');
+        }
+    }
+
+    function updateFieldColumnOptions() {
+        const total = parseInt($formColumns.val(), 10) || 1;
+        $fieldsContainer.find('.wjm-field-column').each(function () {
+            const currentVal = parseInt($(this).val(), 10) || 1;
+            let optionsHtml = '';
+            for (let i = 1; i <= total; i++) {
+                const selected = currentVal === i ? 'selected' : '';
+                optionsHtml += `<option value="${i}" ${selected}>${i}</option>`;
+            }
+            $(this).html(optionsHtml);
+            if (currentVal > total) {
+                $(this).val(total);
+            }
+        });
+    }
+
     // Atualizar JSON de configuração
     $updateJsonBtn.on('click', function () {
         const fields = [];
@@ -167,7 +223,10 @@ jQuery(document).ready(function ($) {
             const label = $el.find('.wjm-field-label').val().trim();
             const type = $el.find('.wjm-field-type').val();
             const required = $el.find('.wjm-field-required').is(':checked');
+            const column = parseInt($el.find('.wjm-field-column').val(), 10) || 1;
+            const fullWidth = $el.find('.wjm-field-fullwidth').is(':checked');
             const options = [];
+            const placeholder = $el.find('.wjm-field-placeholder').val().trim();
             $el.find('.wjm-field-option').each(function () {
                 const value = $(this).val().trim();
                 if (value) options.push(value);
@@ -179,7 +238,7 @@ jQuery(document).ready(function ($) {
                 return false;
             }
 
-            fields.push({ name, label, type, required, options });
+            fields.push({ name, label, type, required, options, column, fullWidth, placeholder });
         });
 
         if (!valid) return;
@@ -218,4 +277,7 @@ jQuery(document).ready(function ($) {
     renderExistingFieldsFromJson();
     attachFieldTypeHandler();
     attachOptionHandlers();
+    updateLayoutVisibility();
+    updateFieldColumnOptions();
+    $formColumns.on('change', updateFieldColumnOptions);
 });

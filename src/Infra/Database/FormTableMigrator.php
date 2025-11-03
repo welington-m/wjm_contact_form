@@ -14,10 +14,18 @@ class FormTableMigrator
         $fields_table = $db->prefix . 'wjm_form_fields';
         $messages_table = $db->prefix . 'wjm_form_messages';
 
+        
+        $layout_column_exists = $db->get_var("SHOW COLUMNS FROM {$forms_table} LIKE 'layout'");
+        if ($layout_column_exists === null) {
+            $db->query("ALTER TABLE {$forms_table} ADD COLUMN layout TINYINT NOT NULL DEFAULT '1'");
+        }
+
+
         $sql_forms = "
         CREATE TABLE IF NOT EXISTS {$forms_table} (
             id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             title VARCHAR(255) NOT NULL,
+            layout TINYINT NOT NULL DEFAULT '1',
             fields TEXT NOT NULL,
             recipient_email VARCHAR(255),
             submit_button_text VARCHAR(255) DEFAULT 'Enviar',
@@ -50,6 +58,8 @@ class FormTableMigrator
             submitted_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
             ip_address VARCHAR(45) NOT NULL,
             viewed TINYINT(1) DEFAULT 0 NOT NULL,
+            viewed_by VARCHAR(60),
+            viewed_at DATETIME,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             INDEX (form_id)
         ) {$charset_collate};

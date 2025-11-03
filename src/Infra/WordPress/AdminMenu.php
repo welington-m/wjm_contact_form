@@ -45,6 +45,15 @@ class AdminMenu
             );
 
             add_submenu_page(
+                null,
+                'Estilizar Formulário',
+                'Estilizar Formulário',
+                'manage_options',
+                'wjm_form_style',
+                [$this->formController, 'style']
+            );
+
+            add_submenu_page(
                 'wjm_contact_dashboard',
                 'Listar Mensagens',
                 'Listar Mensagens',
@@ -54,13 +63,17 @@ class AdminMenu
             );
 
             add_submenu_page(
-                null, // Não aparece no menu
+                'wjm_contact_dashboard',
                 'Detalhes da Mensagem',
-                '', // Título vazio
+                'Detalhes da Mensagem',
                 'manage_options',
-                'wjm_view_message', // Slug diferente do anterior
+                'wjm_view_message',
                 [$this->formMessageController, 'show']
             );
         });
+
+        add_action('admin_menu', function () {
+            remove_submenu_page('wjm_contact_dashboard', 'wjm_view_message');
+        }, 999);
     }
 }

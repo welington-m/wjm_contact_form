@@ -21,13 +21,16 @@ class FormFactoryTest extends TestCase
                     'type' => 'select',
                     'label' => 'Selecionar',
                     'required' => false,
-                    'options' => ['A', 'B']
+                    'options' => ['A', 'B'],
+                    'column' => 2,
+                    'fullWidth' => true
                 ]
             ],
             recipientEmail: 'test@example.com',
             submitButtonText: 'Enviar',
             errorMessage: 'Erro',
-            successMessage: 'Sucesso'
+            successMessage: 'Sucesso',
+            layout: 1
         );
 
         $form = FormFactory::fromCreateDTO($dto);
@@ -35,6 +38,8 @@ class FormFactoryTest extends TestCase
 
         $this->assertInstanceOf(FormField::class, $field);
         $this->assertSame(['A', 'B'], $field->options);
+        $this->assertSame(2, $field->column);
+        $this->assertTrue($field->fullWidth);
     }
 }
 

@@ -7,6 +7,7 @@ class Form
     public function __construct(
         public readonly ?int $id,
         public string $title,
+        public int $layout = 1,
         /** @var FormField[] */
         public array $fields = [],
         public ?string $recipientEmail = null,

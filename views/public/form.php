@@ -1,5 +1,6 @@
 <?php
 /** @var \WJM\Domain\Entities\Form $form */
+/** @var int $columns */
 if (!$form) {
     echo '<p>Formulário não encontrado.</p>';
     return;
@@ -21,18 +22,27 @@ $message = $_GET['message'] ?? '';
         <input type="hidden" name="form_id" value="<?php echo esc_attr($form->id); ?>">
         <?php wp_nonce_field('wjm_form_submit', 'wjm_nonce'); ?>
 
+        <div class="wjm-grid columns-<?php echo $columns; ?>">
         <?php foreach ($form->fields as $field): ?>
-            <div class="wjm-form-group">
+            <?php
+                $fieldClasses = ['wjm-form-group', 'col-' . max(1, min(4, (int)$field->column))];
+                if ($field->fullWidth) {
+                    $fieldClasses[] = 'full-width';
+                }
+            ?>
+            <div class="<?php echo implode(' ', $fieldClasses); ?>">
                 <label for="<?php echo esc_attr($field->name); ?>">
                     <?php echo esc_html($field->label); ?>
                     <?php if ($field->required): ?> *<?php endif; ?>
                 </label>
 
                 <?php if ($field->type === 'textarea'): ?>
+                    <?php $placeholderAttr = $field->placeholder ? ' placeholder="' . esc_attr($field->placeholder) . '"' : ''; ?>
                     <textarea
                         id="<?php echo esc_attr($field->name); ?>"
                         name="<?php echo esc_attr($field->name); ?>"
                         <?php echo $field->required ? 'required' : ''; ?>
+                        <?php echo $placeholderAttr; ?>
                     ></textarea>
                 <?php elseif ($field->type === 'select'): ?>
                     <select
@@ -79,15 +89,18 @@ $message = $_GET['message'] ?? '';
                         <?php endforeach; ?>
                     </div>
                 <?php else: ?>
+                    <?php $placeholderAttr = $field->placeholder ? ' placeholder="' . esc_attr($field->placeholder) . '"' : ''; ?>
                     <input
                         type="<?php echo esc_attr($field->type); ?>"
                         id="<?php echo esc_attr($field->name); ?>"
                         name="<?php echo esc_attr($field->name); ?>"
                         <?php echo $field->required ? 'required' : ''; ?>
+                        <?php echo $placeholderAttr; ?>
                     >
                 <?php endif; ?>
             </div>
         <?php endforeach; ?>
+        </div>
 
         <button type="submit">
             <?php echo esc_html($form->submitButtonText ?? 'Enviar'); ?>

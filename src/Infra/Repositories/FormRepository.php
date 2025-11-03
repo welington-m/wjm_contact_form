@@ -42,7 +42,19 @@ class FormRepository implements FormRepositoryInterface
     {
         $data = [
             'title' => $form->title,
-            'fields' => json_encode($form->fields),
+            'layout' => (int) $form->layout,
+            'fields' => json_encode(array_map(function (FormField $field) {
+                return [
+                    'name' => $field->name,
+                    'label' => $field->label,
+                    'type' => $field->type,
+                    'required' => $field->required,
+                    'options' => $field->options,
+                    'column' => $field->column,
+                    'fullWidth' => $field->fullWidth,
+                    'placeholder' => $field->placeholder,
+                ];
+            }, $form->fields)),
             'recipient_email' => $form->recipientEmail,
             'submit_button_text' => $form->submitButtonText,
             'error_message' => $form->errorMessage,
@@ -71,11 +83,23 @@ class FormRepository implements FormRepositoryInterface
     private function mapRowToForm(array $row): Form
     {
         $fields = json_decode($row['fields'], true) ?? [];
-        $formFields = array_map(fn($f) => new FormField(...$f), $fields);
+        $formFields = array_map(function ($f) {
+            return new FormField(
+                name: $f['name'] ?? '',
+                label: $f['label'] ?? '',
+                type: $f['type'] ?? 'text',
+                required: $f['required'] ?? false,
+                options: $f['options'] ?? [],
+                column: isset($f['column']) ? (int) $f['column'] : 1,
+                fullWidth: $f['fullWidth'] ?? false,
+                placeholder: $f['placeholder'] ?? null
+            );
+        }, $fields);
 
         return new Form(
             id: (int) $row['id'],
             title: $row['title'],
+            layout: isset($row['layout']) ? (int) $row['layout'] : 1,
             fields: $formFields,
             recipientEmail: $row['recipient_email'],
             submitButtonText: $row['submit_button_text'],

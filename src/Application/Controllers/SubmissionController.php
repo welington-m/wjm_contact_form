@@ -36,9 +36,29 @@ class SubmissionController
         }
 
 
-        $html = $this->view->render('public/form', ['form' => $form]);
+        $attrLayout = isset($atts['layout']) ? (int) $atts['layout'] : null;
+        $layout = in_array($attrLayout, [1, 2, 3, 4], true)
+            ? $attrLayout
+            : ($form->layout ?? 1);
 
-        return is_string($html) ? $html : '';
+        $attrColumns = isset($atts['columns']) ? (int)$atts['columns'] : null;
+        $columns = in_array($attrColumns, [1, 2, 3, 4], true)
+            ? $attrColumns
+            : ($form->layout ?? 1);
+
+        ob_start();
+        $html = $this->view->render('public/form', [
+            'form' => $form,
+            'layout' => $layout,
+            'columns' => $columns,
+        ]);
+        $bufferedOutput = ob_get_clean();
+
+        if (is_string($html) && $html !== '') {
+            return $html;
+        }
+
+        return $bufferedOutput !== false ? $bufferedOutput : '';
     }
 
 public function handlePost(): void
@@ -57,23 +77,37 @@ public function handlePost(): void
     try {
         $result = $this->handle($formId, $formData);
 
-        if ($result['success']) {
-            wp_redirect(add_query_arg([
-                'form_status' => 'success',
-                'message' => urlencode('Formulário enviado com sucesso!')
-            ], wp_get_referer()));
-        } else {
-            wp_redirect(add_query_arg([
-                'form_status' => 'error',
-                'message' => urlencode($result['error'] ?? 'Erro ao enviar o formulário.')
-            ], wp_get_referer()));
+        $redirectBase = wp_get_referer();
+        if (!$redirectBase) {
+            $redirectBase = home_url('/');
         }
+
+        if ($result['success']) {
+            $redirectUrl = add_query_arg([
+                'form_status' => 'success',
+                'message' => $result['message'] ?? 'Formulário enviado com sucesso!'
+            ], $redirectBase);
+        } else {
+            $redirectUrl = add_query_arg([
+                'form_status' => 'error',
+                'message' => $result['error'] ?? 'Erro ao enviar o formulário.'
+            ], $redirectBase);
+        }
+
+        wp_safe_redirect($redirectUrl);
         exit;
     } catch (\Throwable $e) {
-        wp_redirect(add_query_arg([
+        $redirectBase = wp_get_referer();
+        if (!$redirectBase) {
+            $redirectBase = home_url('/');
+        }
+
+        $redirectUrl = add_query_arg([
             'form_status' => 'error',
-            'message' => urlencode('Erro inesperado: ' . $e->getMessage())
-        ], wp_get_referer()));
+            'message' => 'Erro inesperado: ' . $e->getMessage(),
+        ], $redirectBase);
+
+        wp_safe_redirect($redirectUrl);
         exit;
     }
 }

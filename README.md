@@ -42,60 +42,47 @@ Plugin robusto de formulário de contato para WordPress, com arquitetura moderna
 ## 📁 Estrutura de Diretórios
 
 ```bash
-src/
-├── Application/
-│   ├── Controller/
-│   │   ├── DashboardController.php
-│   │   ├── FormController.php
-│   │   ├── SubmissionController.php
-│   │   └── ExportController.php
-│   ├── Handlers/
-│   │   └── FormSubmissionHandler.php
-│   ├── UseCase/
-│   │   └── Form/
-│   │       ├── DTO/
-│   │       │   ├── CreateFormDTO.php
-│   │       │   ├── UpdateFormDTO.php
-│   │       │   └── SubmissionDTO.php
-│   │       ├── CreateFormUseCase.php
-│   │       ├── UpdateFormUseCase.php
-│   │       └── SubmitFormUseCase.php
-├── Domain/
-│   ├── Entities/
-│   │   ├── Form.php
-│   │   ├── FormField.php
-│   │   └── FormMessage.php
-│   ├── Repositories/
-│   │   └── FormRepositoryInterface.php
-│   └── ValueObjects/
-│       └── Email.php
-├── Infra/
-│   ├── Database/
-│   │   └── FormTableMigrator.php
-│   ├── Hooks/
-│   │   └── HookRegistrar.php
-│   ├── Repositories/
-│   │   └── FormRepository.php
-│   ├── Services/
-│   │   ├── EmailSender.php
-│   │   └── ExportService.php
-│   └── WordPress/
-│       ├── View.php
-│       ├── AdminMenu.php
-│       └── AssetsLoader.php
+.
+├── assets/
+│   ├── css/
+│   ├── img/
+│   └── js/
+├── src/
+│   ├── Application/
+│   │   ├── Controllers/
+│   │   ├── Mappers/
+│   │   └── UseCase/
+│   │       └── Form/
+│   │           └── DTO/
+│   ├── Domain/
+│   │   ├── Entities/
+│   │   ├── Factories/
+│   │   └── Repositories/
+│   └── Infra/
+│       ├── Database/
+│       ├── Hooks/
+│       ├── Repositories/
+│       ├── Services/
+│       └── WordPress/
+│           └── Helpers/
+├── tests/
+│   └── Unit/
+│       ├── Application/
+│       │   ├── Controllers/
+│       │   └── UseCase/
+│       │       └── Form/
+│       ├── Domain/
+│       │   └── Factories/
+│       └── Infra/
+│           └── WordPress/
+│               └── Helpers/
 ├── views/
-│   └── admin/
-│       ├── dashboard.php
-│       ├── forms/
-│       │   ├── edit.php
-│       │   └── index.php
-│       ├── messages/
-│       │   ├── list.php
-│       │   └── show.php
-│       └── parts/
-│           ├── forms-table.php
-│           └── messages-table.php
-├── PluginKernel.php
+│   ├── admin/
+│   │   ├── forms/
+│   │   ├── messages/
+│   │   └── parts/
+│   ├── email/
+│   └── public/
 └── wjm-contact-form.php
 ```
 

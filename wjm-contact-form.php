@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WJM Contact Form
  * Description: Plugin de formulário de contato com arquitetura DDD, Clean Architecture e Shortcode.
- * Version: 1.1.3
+ * Version: 1.4.1
  * Author: Welington Jose Miyazato
  */
 
